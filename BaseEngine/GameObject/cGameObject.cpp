@@ -30,7 +30,7 @@ cGameObject::cGameObject()
 
 	this->m_pDebugRenderer = NULL;
 
-	//this->positionXYZ = glm::vec3(0.0f,0.0f,0.0f);
+	this->m_position = glm::vec3(0.0f,0.0f,0.0f);
 
 	// Rotation of 0 degrees.
 	this->m_qRotation = glm::quat(glm::vec3(0.0f,0.0f,0.0f));

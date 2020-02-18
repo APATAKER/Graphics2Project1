@@ -23,6 +23,7 @@ public:
 	std::string meshName;			
 	unsigned int friendlyIDNumber;
 	std::string friendlyName;
+	glm::vec3 m_position;
 	glm::quat m_qRotation;					// Orientation as a quaternion
 	glm::vec3 m_up;
 	glm::vec3 m_at;

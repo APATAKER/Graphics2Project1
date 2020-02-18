@@ -142,7 +142,7 @@ void main()
 		// So you just need to FILL the ENTIRE screen with something.
 		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, 
 		                         gl_FragCoord.y / screenHeight );
-		vec3 texRGB = texture( secondPassColourTexture, textCoords.st ).rgb;
+		vec3 texRGB = texture(secondPassColourTexture, textCoords.st ).rgb;
 		pixelColour.rgb = (texRGB);
 		pixelColour.a = 1.0f;
 		

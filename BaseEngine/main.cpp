@@ -12,10 +12,12 @@
 #include <physics/iPhysInterfaces.h>			// Physics
 #include "global.h"								// Global Loading AND func in future
 #include "FBO/cFBO.h"
+#include "MazeGen/cMazeMaker.h"
 
 
 // Global Pointers and variables
 cBasicTextureManager* g_pTextureManager = nullptr;
+cMazeMaker* p_maze_maker = nullptr;
 cFBO* p_fbo = nullptr;
 GLFWwindow* window = nullptr;
 cDebugRenderer* g_pDebugRenderer = nullptr;
@@ -167,6 +169,9 @@ int main()
 		
 		gameobject->meshName = jgameobj["meshname"].GetString();
 		gameobject->friendlyName = jgameobj["friendlyname"].GetString();
+		gameobject->m_position = glm::vec3(jgameobj["position"]["x"].GetFloat(),
+			jgameobj["position"]["y"].GetFloat(),
+			jgameobj["position"]["z"].GetFloat());
 		gameobject->setOrientation(glm::vec3(
 											jgameobj["rotation"]["x"].GetFloat(),
 											jgameobj["rotation"]["y"].GetFloat(),
@@ -191,7 +196,6 @@ int main()
 		gameobject->collision_radius = jgameobj["bulletCollisionRadius"].GetFloat();
 		gameobject->isVisible = jgameobj["isVisible"].GetInt();
 		gameobject->is_static = jgameobj["isStatic"].GetInt();
-		
 		g_vec_pGameObjects.push_back(gameobject);
 	}
 	//##### GAME ### OBJECTS ### TO ### CREATED ### HERE ##################################################################
@@ -228,20 +232,23 @@ int main()
 	{
 		std::cout << "FBO Error: " << FBOError << std::endl;
 	}
-	
 
+	p_maze_maker = new cMazeMaker();
+	p_maze_maker->GenerateMaze(50, 50);
+
+	
 
 	//############################## Game Loop Starts Here ##################################################################
 	while (!glfwWindowShouldClose(window))
 	{
-		//Draw everything to a Frame Bufer
-		glBindFramebuffer(GL_FRAMEBUFFER, p_fbo->ID);
+		////Draw everything to a Frame Bufer
+		//glBindFramebuffer(GL_FRAMEBUFFER, p_fbo->ID);
 
-		p_fbo->clearBuffers(true, true);
+		//p_fbo->clearBuffers(true, true);
 
-		// Set the passNumber to 0
-		GLint passNumber_UniLoc = glGetUniformLocation(shader_program_ID, "passNumber");
-		glUniform1i(passNumber_UniLoc, 0);
+		//// Set the passNumber to 0
+		//GLint passNumber_UniLoc = glGetUniformLocation(shader_program_ID, "passNumber");
+		//glUniform1i(passNumber_UniLoc, 0);
 		
 		PhysicsInit();
 		// Updating DeltaTime
@@ -264,7 +271,7 @@ int main()
 		glUseProgram(shader_program_ID);		// using current shader
 
 
-		// Creating the GL_ViewPort 
+		// Creating the GL_ViewPort   This is Pass 1
 		float ratio;
 		int width, height;
 		glm::mat4 p, v;
@@ -340,7 +347,14 @@ int main()
 			cGameObject* pCurrentObject = ::g_vec_pGameObjects[index];
 			glm::mat4 matModel = glm::mat4(1.0f);	// Identity matrix
 			
-			pCurrentObject->m_physics_component->GetTransform(matModel);
+			if(pCurrentObject->m_physics_component)
+			{
+				pCurrentObject->m_physics_component->GetTransform(matModel);
+			}
+			else
+			{
+
+			}
 			
 			
 			DrawObject(matModel, pCurrentObject,
@@ -348,6 +362,22 @@ int main()
 
 		}//for (int index...
 
+
+		// Maze Draw
+
+		for(int a =0,draw1=0;a<10;a++,draw1+=1)
+			for(int b=0,draw2=0;b<10;b++,draw2+=1)
+			{
+				
+				if(p_maze_maker->maze[a][b][0] == true)
+				{
+					cGameObject* wall = findGameObjectByFriendlyName(g_vec_pGameObjects, "staticObject");
+					glm::mat4 matModel = glm::mat4(1.0f);
+					wall->m_position = glm::vec3(a+draw1, 50,b+draw2);
+					DrawObject(matModel, wall,shader_program_ID, p_vao_manager);
+				}
+			}
+		// Maze Draw
 		
 		//Physics implementation
 
@@ -355,51 +385,53 @@ int main()
 		
 		//Physics implementation
 
-		
-		//The Whole scene is now drawn (to the FBO)
 
-		// 1. Disable the FBO
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// 2. Clear the actual screen buffer
-		glViewport(0, 0, width, height);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//// This is Pass 2
+		////The Whole scene is now drawn (to the FBO)
 
-		// 3. Use the FBO colour texture as the texture on the quad
-		glUniform1i(passNumber_UniLoc, 1);
+		//// 1. Disable the FBO
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//Tie the texture to the texture unit
-		glActiveTexture(GL_TEXTURE22);				// Texture Unit 22
-		glBindTexture(GL_TEXTURE_2D, p_fbo->colourTexture_0_ID);	// Texture now assoc with texture unit 0
-		//glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);
-		GLint textSamp00_UL = glGetUniformLocation(shader_program_ID, "secondPassColorTexture");
-		glUniform1i(textSamp00_UL, 22);	// Texture unit 22
+		//// 2. Clear the actual screen buffer
+		//glViewport(0, 0, width, height);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// 4. Draw a single object ( a triangle or quad)
-		cGameObject* pQuadOrIsIt = findGameObjectByFriendlyName(g_vec_pGameObjects,"ground");
+		//// 3. Use the FBO colour texture as the texture on the quad
+		////glUniform1i(passNumber_UniLoc, 1);
 
-		pQuadOrIsIt->isVisible = true;
-		pQuadOrIsIt->setOrientation(glm::vec3(-90, 0, 0));
-		//pQuadOrIsIt->setRotationXYZ(glm::vec3(glm::radians(180.0f), 0, 0));
-		
-	/*	v = glm::lookAt(glm::vec3(0.0f, 100.0f, -300.0f),
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f));
+		////Tie the texture to the texture unit
+		//glActiveTexture(GL_TEXTURE22);				// Texture Unit 22
+		//glBindTexture(GL_TEXTURE_2D, p_fbo->colourTexture_0_ID);	// Texture now assoc with texture unit 0
+		////glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);
+		//GLint textSamp00_UL = glGetUniformLocation(shader_program_ID, "secondPassColourTexture");
+		//glUniform1i(textSamp00_UL, 22);	// Texture unit 22
 
-		glUniformMatrix4fv(matView_UL, 1, GL_FALSE, glm::value_ptr(v));*/
+		//// 4. Draw a single object ( a triangle or quad)
+		//cGameObject* pQuadOrIsIt = findGameObjectByFriendlyName(g_vec_pGameObjects,"ground");
 
-		// Set the actual screen size
-		GLint screenWidth_UnitLoc = glGetUniformLocation(shader_program_ID, "screenWidth");
-		GLint screenHeight_UnitLoc = glGetUniformLocation(shader_program_ID, "screenHeight");
+		//pQuadOrIsIt->isVisible = true;
+		////pQuadOrIsIt->setOrientation(glm::vec3(-90, 0, 0));
+		////pQuadOrIsIt->setRotationXYZ(glm::vec3(glm::radians(180.0f), 0, 0));
+		//
+		///*v = glm::lookAt(glm::vec3(0.0f, 100.0f, -300.0f),
+		//	glm::vec3(0.0f, 0.0f, 0.0f),
+		//	glm::vec3(0.0f, 1.0f, 0.0f));
 
-		// Get the "screen" framebuffer size 
-		glfwGetFramebufferSize(window, &width, &height);
+		//glUniformMatrix4fv(matView_UL, 1, GL_FALSE, glm::value_ptr(v));*/
 
-		glUniform1f(screenWidth_UnitLoc, width);
-		glUniform1f(screenHeight_UnitLoc, height);
+		//// Set the actual screen size
+		//GLint screenWidth_UnitLoc = glGetUniformLocation(shader_program_ID, "screenWidth");
+		//GLint screenHeight_UnitLoc = glGetUniformLocation(shader_program_ID, "screenHeight");
 
-		glm::mat4 matQuad = glm::mat4(1.0f);
-		DrawObject(matQuad, pQuadOrIsIt, shader_program_ID, p_vao_manager);
+		//// Get the "screen" framebuffer size 
+		//glfwGetFramebufferSize(window, &width, &height);
+
+		//glUniform1f(screenWidth_UnitLoc, width);
+		//glUniform1f(screenHeight_UnitLoc, height);
+
+		//glm::mat4 matQuad = glm::mat4(1.0f);
+		//DrawObject(matQuad, pQuadOrIsIt, shader_program_ID, p_vao_manager);
 
 
 
@@ -686,6 +718,12 @@ glm::mat4 calculateWorldMatrix(cGameObject* pCurrentObject, glm::mat4 matWorld)
 	//matWorld = matWorld * matTrans;
 
 	//matWorld =  pCurrentObject->DoRender();
+
+	if(pCurrentObject->is_static == 1)
+	{	
+		glm::mat4 matTrans = glm::translate(glm::mat4(1.f), pCurrentObject->m_position);
+		matWorld = matWorld * matTrans;
+	}
 	
 
 	glm::mat4 matRotation = glm::mat4(pCurrentObject->getQOrientation());

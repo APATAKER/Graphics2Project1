@@ -12,7 +12,8 @@
     "assets/models/Sphere_Radius_3_XYZ_n_uv.ply",
     "assets/models/Sphere_Radius_5_XYZ_n_uv.ply",
     "assets/models/Sphere_Radius_0.5_XYZ_n_uv.ply",
-    "assets/models/kunai_n_uv.ply"
+    "assets/models/kunai_n_uv.ply",
+    "assets/models/cube_flat_shaded_xyz_n_uv.ply"
   ],
   "MeshName": [
     "ground",
@@ -23,7 +24,8 @@
     "sphere3",
     "sphere5",
     "bullet",
-    "kunai"
+    "kunai",
+    "mazecube"
   ],
   "Textures": [
     "defaultTex.bmp",
@@ -129,7 +131,7 @@
         "radius": 0
       },
       "mass": 0,
-      "isVisible": 0
+      "isVisible": 1
     },
     {
       "meshname": "ground2",
@@ -176,7 +178,7 @@
         "radius": 0
       },
       "mass": 0,
-      "isVisible": 0
+      "isVisible": 1
     },
     {
       "meshname": "ground2",
@@ -223,7 +225,7 @@
         "radius": 0
       },
       "mass": 0,
-      "isVisible": 0
+      "isVisible": 1
     },
     {
       "meshname": "ground2",
@@ -270,7 +272,7 @@
         "radius": 0
       },
       "mass": 0,
-      "isVisible": 0
+      "isVisible": 1
     },
     {
       "meshname": "sphere1",
@@ -785,6 +787,53 @@
       },
       "sphere": {
         "radius": 2
+      },
+      "mass": 1,
+      "isVisible": 1
+    },
+    {
+      "meshname": "mazecube",
+      "friendlyname": "staticObject",
+      "position": {
+        "x": 10.0,
+        "y": 100.0,
+        "z": -10.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": 1.0,
+      "objectcolor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "debugcolor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "tex": [ "violettex.bmp", "", "", "" ],
+      "texratio": [ 1, 0, 0, 0 ],
+      "isStatic": 1,
+      "physicsshapetype": 3,
+      "objectype": 1,
+      "sphereRadius": 2.0,
+      "bulletCollisionRadius": 10.0,
+      "plane": {
+        "normal": {
+          "x": 0.0,
+          "y": -1.0,
+          "z": 0.0
+        },
+        "constant": 0
+      },
+      "sphere": {
+        "radius": 0
       },
       "mass": 1,
       "isVisible": 1
