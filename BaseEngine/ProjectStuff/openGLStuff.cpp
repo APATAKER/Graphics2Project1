@@ -63,19 +63,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		if(glfwGetKey(window, GLFW_KEY_W))
 		{
-			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(0,0,50));
+			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(0,0,-50));
 		}
 		if(glfwGetKey(window, GLFW_KEY_S))
 		{
-			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(0, 0, -50));
+			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(0, 0, 50));
 		}
 		if (glfwGetKey(window, GLFW_KEY_D))
 		{
-			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(-50, 0, 0));
+			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(50, 0, 0));
 		}
 		if (glfwGetKey(window, GLFW_KEY_A))
 		{
-			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(50, 0, 0));
+			current_sphere_in_control->m_physics_component->ApplyForce(glm::vec3(-50, 0, 0));
 		}
 
 		if(glfwGetKey(window,GLFW_KEY_SPACE) && action == GLFW_PRESS)

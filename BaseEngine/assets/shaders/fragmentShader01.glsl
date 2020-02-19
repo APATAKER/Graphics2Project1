@@ -104,9 +104,9 @@ void main()
 		//// It's the 2nd pass
 		//pixelColour = vec4( 0.0f, 1.0f, 0.0f, 1.0f );
 
-		//vec3 texRGB = texture(secondPassColourTexture, fUVx2.st).rgb;
-		//pixelColour.rgb = texRGB;
-		//pixelColour.a = 1.f;
+		vec3 texRGB = texture(secondPassColourTexture, fUVx2.st).rgb;
+		pixelColour.rgb = texRGB;
+		pixelColour.a = 1.f;
 		
 		//float bo = 0.01f;		// For "blurr offset"
 		//
@@ -140,17 +140,39 @@ void main()
 		// This will calculate the screen texture coordinates based 
 		// on what's actually being rendered on the screen. 
 		// So you just need to FILL the ENTIRE screen with something.
-		vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, 
+		/*vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, 
 		                         gl_FragCoord.y / screenHeight );
-		vec3 texRGB = texture(secondPassColourTexture, textCoords.st ).rgb;
+		vec3 texRGB = texture(secondPassColourTexture, fUVx2.st ).rgb;
 		pixelColour.rgb = (texRGB);
-		pixelColour.a = 1.0f;
+		pixelColour.a = 1.0f;*/
 		
 		//float depthValue = texture( secondPassColourTexture, textCoords.st ).r;
 		//depthValue /= 10.0f;
 		//pixelColour.rgb = vec3(depthValue,depthValue,depthValue);
 		//pixelColour.a = 1.0f;
 	
+		return;
+	}
+	// Pass 3 for effects
+	if (passNumber == 2)
+	{
+		float bo = 0.05f;		// For "blurr offset"
+		
+		vec3 texRGB1 = texture(secondPassColourTexture, vec2(fUVx2.s + 0.0f, fUVx2.t + 0.0f) ).rgb;
+		vec3 texRGB2 = texture(secondPassColourTexture, vec2(fUVx2.s - bo, fUVx2.t + 0.0f) ).rgb;
+		vec3 texRGB3 = texture(secondPassColourTexture, vec2(fUVx2.s + bo, fUVx2.t + 0.0f) ).rgb;
+		vec3 texRGB4 = texture(secondPassColourTexture, vec2(fUVx2.s + 0.0f, fUVx2.t - bo) ).rgb;
+		vec3 texRGB5 = texture(secondPassColourTexture, vec2(fUVx2.s + 0.0f, fUVx2.t + bo) ).rgb;
+		
+		vec3 RGB = 0.5f * texRGB1 +
+		           0.125f * texRGB2 +
+				   0.125f * texRGB3 +
+				   0.125f * texRGB4 +
+				   0.125f * texRGB5;
+		
+		pixelColour.rgb = RGB;			// 2.0f because the projector is really dark!!
+		pixelColour.a = 1.0f;
+
 		return;
 	}
 

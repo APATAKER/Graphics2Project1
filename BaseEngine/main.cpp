@@ -205,7 +205,7 @@ int main()
 
 	// Camera Created here
 	::g_pFlyCamera = new cFlyCamera();
-	::g_pFlyCamera->eye = glm::vec3(0.0f, 65.0, -340.0);
+	::g_pFlyCamera->eye = glm::vec3(0.0f, 65.0, 340.0);
 	::g_pFlyCamera->movementSpeed = 0.25f;
 	::g_pFlyCamera->movementSpeed = 2.5f;
 	// Camera Created here
@@ -234,21 +234,23 @@ int main()
 	}
 
 	p_maze_maker = new cMazeMaker();
-	p_maze_maker->GenerateMaze(50, 50);
+	int maze_width =  20;
+	int maze_height = 20;
+	p_maze_maker->GenerateMaze(maze_width, maze_height);
 
-	
+	g_pFlyCamera->setAt(-g_pFlyCamera->getAt());
 
 	//############################## Game Loop Starts Here ##################################################################
 	while (!glfwWindowShouldClose(window))
 	{
-		////Draw everything to a Frame Bufer
-		//glBindFramebuffer(GL_FRAMEBUFFER, p_fbo->ID);
+		//Draw everything to a Frame Bufer
+		glBindFramebuffer(GL_FRAMEBUFFER, p_fbo->ID);
 
-		//p_fbo->clearBuffers(true, true);
+		p_fbo->clearBuffers(true, true);
 
-		//// Set the passNumber to 0
-		//GLint passNumber_UniLoc = glGetUniformLocation(shader_program_ID, "passNumber");
-		//glUniform1i(passNumber_UniLoc, 0);
+		// Set the passNumber to 0
+		GLint passNumber_UniLoc = glGetUniformLocation(shader_program_ID, "passNumber");
+		glUniform1i(passNumber_UniLoc, 0);
 		
 		PhysicsInit();
 		// Updating DeltaTime
@@ -284,6 +286,7 @@ int main()
 			10000.0f);		// Far clipping plane
 		// View matrix
 		v = glm::mat4(1.0f);
+
 		v = glm::lookAt(::g_pFlyCamera->getEye(),
 			::g_pFlyCamera->getAtInWorldSpace(),
 			::g_pFlyCamera->getUpVector());
@@ -365,8 +368,8 @@ int main()
 
 		// Maze Draw
 
-		for(int a =0,draw1=0;a<10;a++,draw1+=1)
-			for(int b=0,draw2=0;b<10;b++,draw2+=1)
+		for(int a =0,draw1=0;a<maze_width-1;a++,draw1+=1)
+			for(int b=0,draw2=0;b<maze_height-1;b++,draw2+=1)
 			{
 				
 				if(p_maze_maker->maze[a][b][0] == true)
@@ -389,50 +392,102 @@ int main()
 
 		//// This is Pass 2
 		////The Whole scene is now drawn (to the FBO)
-
 		//// 1. Disable the FBO
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		//// 2. Clear the actual screen buffer
 		//glViewport(0, 0, width, height);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		//// 3. Use the FBO colour texture as the texture on the quad
 		////glUniform1i(passNumber_UniLoc, 1);
-
 		////Tie the texture to the texture unit
 		//glActiveTexture(GL_TEXTURE22);				// Texture Unit 22
 		//glBindTexture(GL_TEXTURE_2D, p_fbo->colourTexture_0_ID);	// Texture now assoc with texture unit 0
 		////glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);
 		//GLint textSamp00_UL = glGetUniformLocation(shader_program_ID, "secondPassColourTexture");
 		//glUniform1i(textSamp00_UL, 22);	// Texture unit 22
-
 		//// 4. Draw a single object ( a triangle or quad)
 		//cGameObject* pQuadOrIsIt = findGameObjectByFriendlyName(g_vec_pGameObjects,"ground");
-
 		//pQuadOrIsIt->isVisible = true;
 		////pQuadOrIsIt->setOrientation(glm::vec3(-90, 0, 0));
 		////pQuadOrIsIt->setRotationXYZ(glm::vec3(glm::radians(180.0f), 0, 0));
 		//
-		///*v = glm::lookAt(glm::vec3(0.0f, 100.0f, -300.0f),
+		//*v = glm::lookAt(glm::vec3(0.0f, 100.0f, -300.0f),
 		//	glm::vec3(0.0f, 0.0f, 0.0f),
 		//	glm::vec3(0.0f, 1.0f, 0.0f));
-
+		//
 		//glUniformMatrix4fv(matView_UL, 1, GL_FALSE, glm::value_ptr(v));*/
-
+		//
 		//// Set the actual screen size
 		//GLint screenWidth_UnitLoc = glGetUniformLocation(shader_program_ID, "screenWidth");
 		//GLint screenHeight_UnitLoc = glGetUniformLocation(shader_program_ID, "screenHeight");
-
+		//
 		//// Get the "screen" framebuffer size 
 		//glfwGetFramebufferSize(window, &width, &height);
-
+		//
 		//glUniform1f(screenWidth_UnitLoc, width);
 		//glUniform1f(screenHeight_UnitLoc, height);
-
+		//
 		//glm::mat4 matQuad = glm::mat4(1.0f);
 		//DrawObject(matQuad, pQuadOrIsIt, shader_program_ID, p_vao_manager);
 
+		// 2nd Pass  // Draw image on screen
+
+		// 1. Set the framebuffer to the Actual screen
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// 2. Clear the screen (glClear())
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+
+
+
+		
+		// 3. Set up the textures for the TV screen (From the FBO)
+		glActiveTexture(GL_TEXTURE0 + 40);				// Texture Unit 40
+		glBindTexture(GL_TEXTURE_2D, p_fbo->colourTexture_0_ID);	// Texture now assoc with texture unit 0
+		//glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);
+		GLint textSamp00_UL = glGetUniformLocation(shader_program_ID, "secondPassColourTexture");
+		glUniform1i(textSamp00_UL, 40);	// Texture unit 40
+		
+		// 4. Draw the TV and Screen
+		glUniform1i(passNumber_UniLoc, 0);
+		// GameObject Draw Call
+		for (int index = 0; index != ::g_vec_pGameObjects.size(); index++)
+		{
+			cGameObject* pCurrentObject = ::g_vec_pGameObjects[index];
+			glm::mat4 matModel = glm::mat4(1.0f);	// Identity matrix
+
+			if (pCurrentObject->m_physics_component)
+			{
+				pCurrentObject->m_physics_component->GetTransform(matModel);
+			}
+			else
+			{
+
+			}
+
+			if ((pCurrentObject->friendlyName) != "tvscreen1" && (pCurrentObject->friendlyName) != "tvscreen2")
+			DrawObject(matModel, pCurrentObject,
+				shader_program_ID, p_vao_manager);
+
+		}//for (int index...
+		//GLint passNumber_UniLoc = glGetUniformLocation(shader_program_ID, "passNumber");
+		glUniform1i(passNumber_UniLoc, 2);
+		cGameObject* p_TV_screen1 = findGameObjectByFriendlyName(g_vec_pGameObjects, "tvscreen1");
+		glm::mat4 mat4_TV_screen1 = glm::mat4(1.f);
+		DrawObject(mat4_TV_screen1, p_TV_screen1, shader_program_ID, p_vao_manager);
+
+
+		
+		glUniform1i(passNumber_UniLoc, 1);
+		cGameObject* p_TV_screen2 = findGameObjectByFriendlyName(g_vec_pGameObjects, "tvscreen2");
+		glm::mat4 mat4_TV_screen2 = glm::mat4(1.f);
+		DrawObject(mat4_TV_screen2, p_TV_screen2, shader_program_ID, p_vao_manager);
+
+		// Place the camera somewhere stationary
+		glUniform1i(passNumber_UniLoc, 0);
 
 
 		glfwSwapBuffers(window);		// Buffer Swap

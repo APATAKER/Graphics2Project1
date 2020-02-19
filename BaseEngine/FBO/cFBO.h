@@ -11,14 +11,16 @@ public:
 	cFBO() : 
 		ID(0), 
 		colourTexture_0_ID(0),
-		depthTexture_ID(0), 
+		depthTexture_ID(0),
+		TBDTexture_1_ID(0),
+		TBDTexture_2_ID(0),
 		width(-1), height(-1) {};
 
 	GLuint ID;						// = 0;
 	GLuint colourTexture_0_ID;		// = 0;
+	GLuint TBDTexture_1_ID;
+	GLuint TBDTexture_2_ID;
 
-//	GLuint TBDTexture_1_ID;
-//	GLuint TBDTexture_2_ID;
 
 	GLuint depthTexture_ID;		// = 0;
 	GLint width;		// = 512 the WIDTH of the framebuffer, in pixels;

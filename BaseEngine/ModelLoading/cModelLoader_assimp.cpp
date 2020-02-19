@@ -78,7 +78,7 @@ bool cModelLoader::LoadModel_Assimp(std::string filename,
 	std::cout << "loaded vertices" << std::endl;
 
 	unsigned int triIndex = 0;		// This goes up by 1 for each TRIANGLE
-	for (; triIndex != pScene->mMeshes[0]->mNumFaces; triIndex++)
+	for (; triIndex != pScene->mMeshes[meshIndex]->mNumFaces; triIndex++)
 	{
 		sPlyTriangle curTri;
 
