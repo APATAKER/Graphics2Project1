@@ -11,14 +11,14 @@ public:
 	cFBO() : 
 		ID(0), 
 		colourTexture_0_ID(0),
+		normalTexture_ID(0),
 		depthTexture_ID(0),
-		TBDTexture_1_ID(0),
 		TBDTexture_2_ID(0),
 		width(-1), height(-1) {};
 
 	GLuint ID;						// = 0;
 	GLuint colourTexture_0_ID;		// = 0;
-	GLuint TBDTexture_1_ID;
+	GLuint normalTexture_ID;
 	GLuint TBDTexture_2_ID;
 
 

@@ -16,6 +16,7 @@ bool cFBO::reset(int width, int height, std::string &error)
 bool cFBO::shutdown(void)
 {
 	glDeleteTextures( 1, &(this->colourTexture_0_ID) );
+	glDeleteTextures( 1, &(this->normalTexture_ID) );
 	glDeleteTextures( 1, &(this->depthTexture_ID) );
 
 	glDeleteFramebuffers( 1, &(this->ID) );
@@ -42,6 +43,20 @@ bool cFBO::init( int width, int height, std::string &error )
 //	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F,		// 8 bits per colour
 				   this->width,				// g_FBO_SizeInPixes
 				   this->height);			// g_FBO_SizeInPixes
+
+	/*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
+//***************************************************************
+
+//************************************************************
+	// Create the normal buffer (texture)
+	glGenTextures(1, &(this->normalTexture_ID));		//g_FBO_normalTexture
+	glBindTexture(GL_TEXTURE_2D, this->normalTexture_ID);
+
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8,		// 8 bits per colour
+//	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F,		// 8 bits per colour
+					this->width,				// g_FBO_SizeInPixes
+					this->height);			// g_FBO_SizeInPixes
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -74,6 +89,10 @@ bool cFBO::init( int width, int height, std::string &error )
 						 GL_COLOR_ATTACHMENT0,			// Colour goes to #0
 						 this->colourTexture_0_ID, 0);
 
+	glFramebufferTexture(GL_FRAMEBUFFER,
+						 GL_COLOR_ATTACHMENT1,			// normal goes to #1
+						 this->normalTexture_ID, 1);
+
 
 //	glFramebufferTexture(GL_FRAMEBUFFER,
 //						 GL_DEPTH_ATTACHMENT,
@@ -84,9 +103,10 @@ bool cFBO::init( int width, int height, std::string &error )
 
 	static const GLenum draw_bufers[] = 
 	{ 
-		GL_COLOR_ATTACHMENT0
+		GL_COLOR_ATTACHMENT0,
+		GL_COLOR_ATTACHMENT1
 	};
-	glDrawBuffers(1, draw_bufers);		// There are 4 outputs now
+	glDrawBuffers(2, draw_bufers);		// There are 4 outputs now
 
 	// ***************************************************************
 
@@ -138,6 +158,7 @@ void cFBO::clearBuffers(bool bClearColour, bool bClearDepth)
 	if ( bClearColour )
 	{
 		glClearBufferfv(GL_COLOR, 0, &zero);		// Colour
+		glClearBufferfv(GL_COLOR, 1, &zero);
 	}
 	if ( bClearDepth )
 	{

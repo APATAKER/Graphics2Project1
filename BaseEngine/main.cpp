@@ -293,7 +293,7 @@ int main()
 		glViewport(0, 0, width, height);
 
 		
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear buffers
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear buffers
 
 
 		
@@ -438,7 +438,11 @@ int main()
 		// 2. Clear the screen (glClear())
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		GLint screenWidth_UnitLoc = glGetUniformLocation(shader_program_ID, "screenWidth");
+		GLint screenHeight_UnitLoc = glGetUniformLocation(shader_program_ID, "screenHeight");
 		glfwGetFramebufferSize(window, &width, &height);
+		glUniform1f(screenWidth_UnitLoc, width);
+		glUniform1f(screenHeight_UnitLoc, height);
 		glViewport(0, 0, width, height);
 
 
@@ -446,10 +450,23 @@ int main()
 		
 		// 3. Set up the textures for the TV screen (From the FBO)
 		glActiveTexture(GL_TEXTURE0 + 40);				// Texture Unit 40
-		glBindTexture(GL_TEXTURE_2D, p_fbo->colourTexture_0_ID);	// Texture now assoc with texture unit 0
+		glBindTexture(GL_TEXTURE_2D, p_fbo->colourTexture_0_ID);	// Texture now asbsoc with texture unit 40      // Basically binding to
+		//glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);													// out vec4 pixelColor
+		GLint color_pass_texture_UL = glGetUniformLocation(shader_program_ID, "secondPassColourTexture");             
+		glUniform1i(color_pass_texture_UL, 40);	// Texture unit 40
+
+		glActiveTexture(GL_TEXTURE0 + 41);				// Texture Unit 41
+		glBindTexture(GL_TEXTURE_2D, p_fbo->normalTexture_ID);	// Texture now asbsoc with texture unit 41
 		//glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);
-		GLint textSamp00_UL = glGetUniformLocation(shader_program_ID, "secondPassColourTexture");
-		glUniform1i(textSamp00_UL, 40);	// Texture unit 40
+		GLint normal_pass_texture_UL = glGetUniformLocation(shader_program_ID, "secondPassNormalTexture");			// Basically binding to
+		glUniform1i(normal_pass_texture_UL, 41);	// Texture unit 41												// out vec4 pixelNormal
+
+		glActiveTexture(GL_TEXTURE0 + 42);				// Texture Unit 42
+		glBindTexture(GL_TEXTURE_2D, p_fbo->depthTexture_ID);	// Texture now asbsoc with texture unit 42
+		//glBindTexture(GL_TEXTURE_2D, pTheFBO->depthTexture_ID);
+		GLint depth_pass_texture_UL = glGetUniformLocation(shader_program_ID, "secondPassDepthTexture");			
+		glUniform1i(depth_pass_texture_UL, 42);	// Texture unit 42												
+		
 		
 		// 4. Draw the TV and Screen
 		glUniform1i(passNumber_UniLoc, 0);
@@ -481,7 +498,7 @@ int main()
 
 
 		
-		glUniform1i(passNumber_UniLoc, 1);
+		glUniform1i(passNumber_UniLoc, 3);
 		cGameObject* p_TV_screen2 = findGameObjectByFriendlyName(g_vec_pGameObjects, "tvscreen2");
 		glm::mat4 mat4_TV_screen2 = glm::mat4(1.f);
 		DrawObject(mat4_TV_screen2, p_TV_screen2, shader_program_ID, p_vao_manager);
@@ -509,6 +526,7 @@ int main()
 	delete g_pFlyCamera;
 	delete g_pDebugRenderer;
 	delete g_pTextureManager;
+	delete p_maze_maker;
 	/*delete pPhysics;*/
 	PhysicsEnd();
 	for (int i = 0; i < g_vec_pGameObjects.size(); i++)

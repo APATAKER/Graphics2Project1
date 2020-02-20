@@ -31,6 +31,8 @@ uniform sampler2D textSamp02;
 uniform sampler2D textSamp03;
 
 uniform sampler2D secondPassColourTexture;
+uniform sampler2D secondPassNormalTexture;
+uniform sampler2D secondPassDepthTexture;
 //uniform sampler2D textSamp04;
 //uniform sampler2D textSamp05;
 //uniform sampler2D textSamp06;
@@ -59,6 +61,7 @@ uniform vec4 tex_0_3_ratio;		// x = 0, y = 1, z = 2, w = 3
 
 
 out vec4 pixelColour;			// GL_COLOR_ATTACHMENT0
+out vec4 pixelNormal;			// GL_COLOR_ATTACHMENT1
 
 // Fragment shader
 struct sLight
@@ -105,7 +108,9 @@ void main()
 		//pixelColour = vec4( 0.0f, 1.0f, 0.0f, 1.0f );
 
 		vec3 texRGB = texture(secondPassColourTexture, fUVx2.st).rgb;
+		
 		pixelColour.rgb = texRGB;
+		
 		pixelColour.a = 1.f;
 		
 		//float bo = 0.01f;		// For "blurr offset"
@@ -136,16 +141,16 @@ void main()
 		//
 		//pixelColour.rgb = RGB * 2.0f;			// 2.0f because the projector is really dark!!
 		//pixelColour.a = 1.0f;
-		
+		//
 		// This will calculate the screen texture coordinates based 
 		// on what's actually being rendered on the screen. 
 		// So you just need to FILL the ENTIRE screen with something.
-		/*vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, 
-		                         gl_FragCoord.y / screenHeight );
-		vec3 texRGB = texture(secondPassColourTexture, fUVx2.st ).rgb;
-		pixelColour.rgb = (texRGB);
-		pixelColour.a = 1.0f;*/
-		
+		//vec2 textCoords = vec2( gl_FragCoord.x / screenWidth, 
+		//                         gl_FragCoord.y / screenHeight );
+		//vec3 texRGB = texture(secondPassColourTexture, fUVx2.st ).rgb;
+		//pixelColour.rgb = (texRGB);
+		//pixelColour.a = 1.0f;
+		//
 		//float depthValue = texture( secondPassColourTexture, textCoords.st ).r;
 		//depthValue /= 10.0f;
 		//pixelColour.rgb = vec3(depthValue,depthValue,depthValue);
@@ -153,7 +158,7 @@ void main()
 	
 		return;
 	}
-	// Pass 3 for effects
+	// Pass 3 for effects (blur 5 set gaussian)
 	if (passNumber == 2)
 	{
 		float bo = 0.05f;		// For "blurr offset"
@@ -175,7 +180,29 @@ void main()
 
 		return;
 	}
+	// Normal
+	if (passNumber == 3)
+	{
+		/*vec2 textCoords = vec2(gl_FragCoord.x / screenWidth,
+			gl_FragCoord.y / screenHeight);*/
+		vec3 normRGB = texture(secondPassNormalTexture, fUVx2.st).rgb;
+		pixelColour.rgb = normRGB;
+		pixelColour.a = 1.f;
 
+		return;
+	}
+	// Grayscale
+	if (passNumber == 4)
+	{
+
+
+		float depthValue = texture(secondPassColourTexture, fUVx2.st).r;
+		depthValue /= 2.0f;
+		pixelColour.rgb = vec3(depthValue, depthValue, depthValue);
+		pixelColour.a = 1.0f;
+
+		return;
+	}
 
 	// Shader Type #1  	
 	if ( bDoNotLight )
@@ -252,7 +279,7 @@ void main()
 											
 				  	  
 	// Bunny is chome (reflective)
-	
+	//
 //	vec3 eyeVector = eyeLocation.xyz - fVertWorldLocation.xyz;
 //	eyeVector = normalize(eyeVector);
 //	
@@ -266,15 +293,18 @@ void main()
 //
 //	outColour = calcualteLightContrib( surfaceColour.rgb, fNormal.xyz, 
 //	                                        fVertWorldLocation.xyz, specularColour );
-
-	
-											
-											
+						
 	pixelColour.rgb = outColour.rgb;
 	pixelColour.a = diffuseColour.a;	// Alpha 
 	
-	
+	pixelNormal.rgb = outColour.rgb;
+	pixelNormal.a = diffuseColour.a; 
+	pixelNormal.rgb += fNormal.xyz;
 
+	//pixelColour = pixelNormal;
+
+	//pixelColour.rgb += fNormal.xyz;
+	//pixelColour.rgb += fVertWorldLocation.xyz;
 	// Projector is too dim
 	pixelColour.rgb *= 1.8f;
 
