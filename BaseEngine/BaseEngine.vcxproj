@@ -178,6 +178,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="global.cpp" />
     <ClCompile Include="JsonLoader\cLoad.cpp" />
+    <ClCompile Include="LightManager\cLightStuff.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MazeGen\cMazeMaker.cpp" />
     <ClCompile Include="ModelLoading\cMesh.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="GameObject\cGameObject.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="JsonLoader\cLoad.h" />
+    <ClInclude Include="LightManager\cLightStuff.h" />
     <ClInclude Include="MazeGen\cMazeMaker.h" />
     <ClInclude Include="ModelLoading\cMesh.h" />
     <ClInclude Include="ModelLoading\cModelLoader.h" />

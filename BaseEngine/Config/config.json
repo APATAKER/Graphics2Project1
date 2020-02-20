@@ -15,7 +15,8 @@
     "assets/models/kunai_n_uv.ply",
     "assets/models/cube_flat_shaded_xyz_n_uv.ply",
     "assets/models/RetroTV.edited.bodyonly.ply",
-    "assets/models/RetroTV.edited.screenonly.ply"
+    "assets/models/RetroTV.edited.screenonly.ply",
+    "assets/models/RPG-Character(FBX2013).FBX"
   ],
   "MeshName": [
     "ground",
@@ -29,7 +30,8 @@
     "kunai",
     "mazecube",
     "tvbody",
-    "tvscreen"
+    "tvscreen",
+    "rpgcharacter"
   ],
   "Textures": [
     "defaultTex.bmp",
@@ -41,6 +43,44 @@
     "greentex.bmp",
     "yellowtex.bmp",
     "violettex.bmp"
+  ],
+  "Lights": [
+    {
+      "lightID": 1,
+      "lightPosition": {
+        "x": -25.0,
+        "y": 300.0,
+        "z": -150.0
+      },
+      "lightConstAtten": 0.0000001,
+      "lightLinearAtten": 0.00119,
+      "lightQuadAtten": 9.21e-7,
+      "lightInnerAngle": 5.0,
+      "lightOuterAngle": 7.5,
+      "lightDirection": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      }
+    },
+    {
+      "lightID": 2,
+      "lightPosition": {
+        "x": 25.0,
+        "y": 500.0,
+        "z": 150.0
+      },
+      "lightConstAtten": 0.0000001,
+      "lightLinearAtten": 0.00119,
+      "lightQuadAtten": 9.21e-7,
+      "lightInnerAngle": 5.0,
+      "lightOuterAngle": 7.5,
+      "lightDirection": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      }
+    }
   ],
   "GameObjects": [
     {
@@ -993,6 +1033,53 @@
       },
       "rotation": {
         "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": 1.0,
+      "objectcolor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "debugcolor": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      },
+      "tex": [ "violettex.bmp", "", "", "" ],
+      "texratio": [ 1, 0, 0, 0 ],
+      "isStatic": 1,
+      "physicsshapetype": 3,
+      "objectype": 1,
+      "sphereRadius": 2.0,
+      "bulletCollisionRadius": 10.0,
+      "plane": {
+        "normal": {
+          "x": 0.0,
+          "y": -1.0,
+          "z": 0.0
+        },
+        "constant": 0
+      },
+      "sphere": {
+        "radius": 0
+      },
+      "mass": 1,
+      "isVisible": 1
+    },
+    {
+      "meshname": "rpgcharacter",
+      "friendlyname": "staticObject",
+      "position": {
+        "x": 100.0,
+        "y": 50.0,
+        "z": 100.0
+      },
+      "rotation": {
+        "x": -90.0,
         "y": 0.0,
         "z": 0.0
       },

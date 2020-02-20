@@ -13,6 +13,7 @@
 #include "global.h"								// Global Loading AND func in future
 #include "FBO/cFBO.h"
 #include "MazeGen/cMazeMaker.h"
+#include "LightManager/cLightStuff.h"
 
 
 // Global Pointers and variables
@@ -23,18 +24,13 @@ GLFWwindow* window = nullptr;
 cDebugRenderer* g_pDebugRenderer = nullptr;
 cFlyCamera* g_pFlyCamera = nullptr;
 cLowPassFilter* avgDeltaTimeThingy = nullptr;
+mLight::cLightStuff* p_light_stuff = nullptr;
 extern nPhysics::iPhysicsFactory* physics_factory;
 extern nPhysics::iPhysicsWorld* physics_world;
-glm::vec3 light_position = glm::vec3(-25.0f, 300.0f, -150.0f);
-float light_const_atten = 0.0000001f;		
-float light_linear_atten = 0.00119f;
-float light_quad_atten = 9.21e-7f;
-float light_spot_inner_angle = 5.0f;
-float light_spot_outer_angle = 7.5f;
-glm::vec3 light_spot_direction = glm::vec3(0.0f, -1.0f, 0.0f);
 
 
 std::vector<cGameObject*> g_vec_pGameObjects;
+std::vector<mLight::cLightStuff*> vec_lightObjects;
 std::vector<cGameObject*> vec_bullets;
 
 rapidjson::Document document;
@@ -240,6 +236,9 @@ int main()
 
 	g_pFlyCamera->setAt(-g_pFlyCamera->getAt());
 
+	p_light_stuff = new mLight::cLightStuff();
+	mLight::LoadLightFromJson();
+
 	//############################## Game Loop Starts Here ##################################################################
 	while (!glfwWindowShouldClose(window))
 	{
@@ -296,29 +295,8 @@ int main()
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear buffers
 
 
-		
-		//lights into shader
-		GLint L_0_position = glGetUniformLocation(shader_program_ID, "theLights[0].position");
-		GLint L_0_diffuse = glGetUniformLocation(shader_program_ID, "theLights[0].diffuse");
-		GLint L_0_specular = glGetUniformLocation(shader_program_ID, "theLights[0].specular");
-		GLint L_0_atten = glGetUniformLocation(shader_program_ID, "theLights[0].atten");
-		GLint L_0_direction = glGetUniformLocation(shader_program_ID, "theLights[0].direction");
-		GLint L_0_param1 = glGetUniformLocation(shader_program_ID, "theLights[0].param1");
-		GLint L_0_param2 = glGetUniformLocation(shader_program_ID, "theLights[0].param2");
-		glUniform4f(L_0_position,
-			light_position.x,
-			light_position.y,
-			light_position.z,
-			1.0f);
-		glUniform4f(L_0_diffuse, 1.0f, 1.0f, 1.0f, 1.0f);	// White
-		glUniform4f(L_0_specular, 1.0f, 1.0f, 1.0f, 1.0f);	// White
-		glUniform4f(L_0_atten, 0.0f,  // constant attenuation
-			light_linear_atten,  // Linear 
-			light_quad_atten,	// Quadratic 
-			1000000.0f);	// Distance cut off
-		// Point light:
-		glUniform4f(L_0_param1, 0.0f /*POINT light*/, 0.0f, 0.0f, 1.0f);
-		glUniform4f(L_0_param2, 1.0f /*Light is on*/, 0.0f, 0.0f, 1.0f);
+		////lights into shader
+		p_light_stuff->loadLightIntoShader(shader_program_ID, vec_lightObjects.size());
 		// camera into shader
 		GLint eyeLocation_UL = glGetUniformLocation(shader_program_ID, "eyeLocation");
 		glUniform4f(eyeLocation_UL,
@@ -498,7 +476,7 @@ int main()
 
 
 		
-		glUniform1i(passNumber_UniLoc, 3);
+		glUniform1i(passNumber_UniLoc, 4);
 		cGameObject* p_TV_screen2 = findGameObjectByFriendlyName(g_vec_pGameObjects, "tvscreen2");
 		glm::mat4 mat4_TV_screen2 = glm::mat4(1.f);
 		DrawObject(mat4_TV_screen2, p_TV_screen2, shader_program_ID, p_vao_manager);
